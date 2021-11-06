@@ -6,7 +6,7 @@
   <link href="http://encr.cc/atom.xml" rel="self"/>
   
   <link href="http://encr.cc/"/>
-  <updated>2021-11-05T16:12:25.368Z</updated>
+  <updated>2021-11-06T08:11:20.453Z</updated>
   <id>http://encr.cc/</id>
   
   <author>
@@ -15,6 +15,19 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>测试</title>
+    <link href="http://encr.cc/2021/11/06/%E6%B5%8B%E8%AF%95/"/>
+    <id>http://encr.cc/2021/11/06/%E6%B5%8B%E8%AF%95/</id>
+    <published>2021-11-06T08:10:56.000Z</published>
+    <updated>2021-11-06T08:11:20.453Z</updated>
+    
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>Hello World</title>
