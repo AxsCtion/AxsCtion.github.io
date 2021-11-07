@@ -6,7 +6,7 @@
   <link href="http://encr.cc/atom.xml" rel="self"/>
   
   <link href="http://encr.cc/"/>
-  <updated>2021-11-07T07:58:22.323Z</updated>
+  <updated>2021-11-07T13:30:33.888Z</updated>
   <id>http://encr.cc/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>BUU-SUCTF—2019Pythonginx1</title>
+    <link href="http://encr.cc/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/"/>
+    <id>http://encr.cc/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/</id>
+    <published>2021-11-07T13:28:35.000Z</published>
+    <updated>2021-11-07T13:30:33.888Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="BUU-SUCTF-2019-Pythonginx"><a href="#BUU-SUCTF-2019-Pythonginx" class="headerlink" title="BUU-[SUCTF 2019]Pythonginx"></a>BUU-[SUCTF 2019]Pythonginx</h1><hr><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ul><li>CVE-2019-9636<ul><li>urlsplit不处理NFKC标准化</li></ul></li><li>Nginx重要文件位置</li><li>url的unicode漏洞引发的域名安全问题（涉及资料后面回提及到）</li></ul><h3 id="CVE-2019-9636"><a href="#CVE-2019-9636" class="headerlink" title="CVE-2019-9636"></a>CVE-2019-9636</h3><h4 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h4><p>Python2.7.16-Python3.7.2</p><h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><p>在NFKC规范化期间，Unicode编码处理不当（使用不正确的Netloc）</p><h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><p>CVE编号: CVE-2019-9636</p><p>漏洞类型: 信息泄露</p><p>披露时间: 2019-03-08</p><p>cvss3评分：9.8</p><p>cvss3因子：CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</p><hr><p>使用Pythoncode/IDNA编码的url使用NFKC规范化来分解字符。</p><p>例如：<code>\uFF03</code>不想等于<code>#</code>，但是规范化了<code>#</code>，且改变了URL的片段部分</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt;&gt;&gt;u = <span class="hljs-string">&quot;https://example.com \uFF03@bing.com&quot;</span><br>&gt;&gt;&gt;urlsplit(u).netloc.rpartition(<span class="hljs-string">&quot;@&quot;</span>)[<span class="hljs-number">2</span>]<br>bing.com<br><br><span class="hljs-meta">&gt;&gt;&gt; </span>u = <span class="hljs-string">&quot; https://example.&quot;</span>.encode(<span class="hljs-string">&quot;idna&quot;</span>).decode(<span class="hljs-string">&quot;ascii&quot;</span>)<br><span class="hljs-meta">&gt;&gt;&gt; </span>urlsplit(u).netloc.rpartition(<span class="hljs-string">&quot;@&quot;</span>)[<span class="hljs-number">2</span>] <br>example.com<br><br><span class="hljs-comment"># (Note that .netloc includes user/pass and .rpartition(&quot;@&quot;) is often used to remove it.)</span><br></code></pre></td></tr></table></figure><h3 id="Nginx存放路径"><a href="#Nginx存放路径" class="headerlink" title="Nginx存放路径"></a>Nginx存放路径</h3><ul><li>配置文件存放目录：/etc/nginx</li><li>主配置文件：/etc/nginx/conf/nginx.conf</li><li>管理脚本：/usr/lib64/systemd/system/nginx.service</li><li>模块：/usr/lisb64/nginx/modules</li><li>应用程序：/usr/sbin/nginx</li><li>程序默认存放位置：/usr/share/nginx/html</li><li>日志默认存放位置：/var/log/nginx</li><li>配置文件目录为：/usr/local/nginx/conf/nginx.conf</li></ul><blockquote><p>现在nginx网站配置从nginx.conf转到同目录文件夹下的default.config</p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><p>先去直接看源码。给的不全，大致也能明白一些</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210407607.png" alt="image-20211107210407607">三个if均是检验是否是<code>suctf.cc</code>，在最后还要必须有。</p><p>对这方面知识欠缺，所以看了下大佬的wp</p><p>关键点在于</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210857009.png" alt="image-20211107210857009"></p><p>大体意思就是对域名进行idna编码，然后再utf-8解码。百度搜索就出来这个漏洞</p><ul><li><p><strong>CVE-2019-9636：urlsplit 不处理 NFKC 标准化</strong></p></li><li><p><strong>CVE-2019-10160：urlsplit NFKD 标准化漏洞</strong></p></li></ul><p>然后构造Payload</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">file:////suctf.cc/usr/local/nginx/conf/nginx.conf<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107211730375.png" alt="image-20211107211730375"></p><p>直接拿下flag</p><h3 id="另一种解法"><a href="#另一种解法" class="headerlink" title="另一种解法"></a>另一种解法</h3><p>利用<code>ℂ</code>来代替<code>c</code>及进行绕过</p><blockquote><p>在unicode中还有一种字符<code>℀</code>(U+2100)，当IDNA处理此字符时，会将<code>℀</code>变成a/c，因此当你访问此url时，dns服务器会自动将url重定向到另一个网站。如果服务器引用前端url时，只对域名做了限制，那么通过这种方法，我们就可以轻松绕过服务器对域名的限制了。</p></blockquote><p>altman师傅的脚本:</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># coding:utf-8 </span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">128</span>,<span class="hljs-number">65537</span>):    <br>    tmp=<span class="hljs-built_in">chr</span>(i)    <br>    <span class="hljs-keyword">try</span>:        <br>        res = tmp.encode(<span class="hljs-string">&#x27;idna&#x27;</span>).decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>)        <br>        <span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;-&quot;</span>) <span class="hljs-keyword">in</span> res:            <br>            <span class="hljs-keyword">continue</span>        <br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;U:&#123;&#125;    A:&#123;&#125;      ascii:&#123;&#125; &quot;</span>.<span class="hljs-built_in">format</span>(tmp, res, i))    <br>    <span class="hljs-keyword">except</span>:        <br>        <span class="hljs-keyword">pass</span><br></code></pre></td></tr></table></figure><p>Payload:</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">?url=file://suctf.c℆sr/local/nginx/conf/nginx.conf<br></code></pre></td></tr></table></figure><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul><li><a href="https://bugs.python.org/issue36216">https://bugs.python.org/issue36216</a></li><li>[idna与utf8编码漏洞][<a href="https://www.cnblogs.com/cimuhuashuimu/p/11490431.html]">https://www.cnblogs.com/cimuhuashuimu/p/11490431.html]</a></li><li>[url中的unicode漏洞引发的域名安全问题][<a href="https://xz.aliyun.com/t/6070#toc-7]">https://xz.aliyun.com/t/6070#toc-7]</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;BUU-SUCTF-2019-Pythonginx&quot;&gt;&lt;a href=&quot;#BUU-SUCTF-2019-Pythonginx&quot; class=&quot;headerlink&quot; title=&quot;BUU-[SUCTF 2019]Pythonginx&quot;&gt;&lt;/a&gt;BUU-[SUCTF</summary>
+      
+    
+    
+    
+    
+    <category term="Web安全" scheme="http://encr.cc/tags/Web%E5%AE%89%E5%85%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>PHP安全-伪协议</title>

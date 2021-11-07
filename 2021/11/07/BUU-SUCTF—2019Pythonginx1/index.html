@@ -16,23 +16,24 @@
   <meta name="description" content="呜呼呜呼呜">
   <meta name="author" content="4eg1s">
   <meta name="keywords" content="">
-  <meta name="description" content="PHP安全-伪协议文件包含漏洞 ​         程序开发人员通常会把可重复使用的函数写到单个文件中，在使用某些函数时，直接调用此文件，无需再次编写，这种调用文件的过程一般被称为文件包含。 ​        随着网站业务的需求，程序开发人员一般希望代码更灵活，所以将被包含的文件设置为变量，用来进行动态调用，但是正是这种灵活性通过动态变量的方式引入需要包含的文件时，用户对这个变量可控而且服务端又没">
+  <meta name="description" content="BUU-[SUCTF 2019]Pythonginx 知识点 CVE-2019-9636 urlsplit不处理NFKC标准化   Nginx重要文件位置 url的unicode漏洞引发的域名安全问题（涉及资料后面回提及到）  CVE-2019-9636影响版本Python2.7.16-Python3.7.2 原因在NFKC规范化期间，Unicode编码处理不当（使用不正确的Netloc） 基本信">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PHP安全-伪协议">
-<meta property="og:url" content="http://encr.cc/2021/11/07/PHP%E5%AE%89%E5%85%A8-%E4%BC%AA%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:title" content="BUU-SUCTF—2019Pythonginx1">
+<meta property="og:url" content="http://encr.cc/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/index.html">
 <meta property="og:site_name" content="4eg1s_Blog">
-<meta property="og:description" content="PHP安全-伪协议文件包含漏洞 ​         程序开发人员通常会把可重复使用的函数写到单个文件中，在使用某些函数时，直接调用此文件，无需再次编写，这种调用文件的过程一般被称为文件包含。 ​        随着网站业务的需求，程序开发人员一般希望代码更灵活，所以将被包含的文件设置为变量，用来进行动态调用，但是正是这种灵活性通过动态变量的方式引入需要包含的文件时，用户对这个变量可控而且服务端又没">
+<meta property="og:description" content="BUU-[SUCTF 2019]Pythonginx 知识点 CVE-2019-9636 urlsplit不处理NFKC标准化   Nginx重要文件位置 url的unicode漏洞引发的域名安全问题（涉及资料后面回提及到）  CVE-2019-9636影响版本Python2.7.16-Python3.7.2 原因在NFKC规范化期间，Unicode编码处理不当（使用不正确的Netloc） 基本信">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107151222745.png">
-<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107151240722.png">
-<meta property="article:published_time" content="2021-11-07T05:13:22.000Z">
-<meta property="article:modified_time" content="2021-11-07T07:58:22.323Z">
+<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210407607.png">
+<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210857009.png">
+<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107211730375.png">
+<meta property="article:published_time" content="2021-11-07T13:28:35.000Z">
+<meta property="article:modified_time" content="2021-11-07T13:30:33.888Z">
 <meta property="article:author" content="4eg1s">
 <meta property="article:tag" content="Web安全">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107151222745.png">
+<meta name="twitter:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210407607.png">
   
-  <title>PHP安全-伪协议 - 4eg1s_Blog</title>
+  <title>BUU-SUCTF—2019Pythonginx1 - 4eg1s_Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -183,7 +184,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="PHP安全-伪协议">
+            <span class="h2" id="subtitle" title="BUU-SUCTF—2019Pythonginx1">
               
             </span>
 
@@ -193,8 +194,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-11-07 13:13" pubdate>
-        2021年11月7日 下午
+      <time datetime="2021-11-07 21:28" pubdate>
+        2021年11月7日 晚上
       </time>
     </span>
   
@@ -204,7 +205,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.3k 字
+      1.9k 字
     </span>
   
 
@@ -213,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      4 分钟
+      6 分钟
     </span>
   
 
@@ -250,87 +251,79 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">PHP安全-伪协议</h1>
+            <h1 style="display: none">BUU-SUCTF—2019Pythonginx1</h1>
             
             <div class="markdown-body">
-              <h1 id="PHP安全-伪协议"><a href="#PHP安全-伪协议" class="headerlink" title="PHP安全-伪协议"></a>PHP安全-伪协议</h1><h2 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h2><blockquote>
-<p>​         程序开发人员通常会把可重复使用的函数写到单个文件中，在使用某些函数<br>时，直接调用此文件，无需再次编写，这种调用文件的过程一般被称为文件包含。</p>
-<p>​        随着网站业务的需求，程序开发人员一般希望代码更灵活，所以将被包<br>含的文件设置为变量，用来进行动态调用，但是正是这种灵活性通过动态变<br>量的方式引入需要包含的文件时，用户对这个变量可控而且服务端又没有做<br>合理的校验或者校验被绕过就造成了文件包含漏洞。</p>
+              <h1 id="BUU-SUCTF-2019-Pythonginx"><a href="#BUU-SUCTF-2019-Pythonginx" class="headerlink" title="BUU-[SUCTF 2019]Pythonginx"></a>BUU-[SUCTF 2019]Pythonginx</h1><hr>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ul>
+<li>CVE-2019-9636<ul>
+<li>urlsplit不处理NFKC标准化</li>
+</ul>
+</li>
+<li>Nginx重要文件位置</li>
+<li>url的unicode漏洞引发的域名安全问题（涉及资料后面回提及到）</li>
+</ul>
+<h3 id="CVE-2019-9636"><a href="#CVE-2019-9636" class="headerlink" title="CVE-2019-9636"></a>CVE-2019-9636</h3><h4 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h4><p>Python2.7.16-Python3.7.2</p>
+<h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><p>在NFKC规范化期间，Unicode编码处理不当（使用不正确的Netloc）</p>
+<h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><p>CVE编号: CVE-2019-9636</p>
+<p>漏洞类型: 信息泄露</p>
+<p>披露时间: 2019-03-08</p>
+<p>cvss3评分：9.8</p>
+<p>cvss3因子：CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</p>
+<hr>
+<p>使用Pythoncode/IDNA编码的url使用NFKC规范化来分解字符。</p>
+<p>例如：<code>\uFF03</code>不想等于<code>#</code>，但是规范化了<code>#</code>，且改变了URL的片段部分</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt;&gt;&gt;u = <span class="hljs-string">&quot;https://example.com \uFF03@bing.com&quot;</span><br>&gt;&gt;&gt;urlsplit(u).netloc.rpartition(<span class="hljs-string">&quot;@&quot;</span>)[<span class="hljs-number">2</span>]<br>bing.com<br><br><span class="hljs-meta">&gt;&gt;&gt; </span>u = <span class="hljs-string">&quot; https://example.&quot;</span>.encode(<span class="hljs-string">&quot;idna&quot;</span>).decode(<span class="hljs-string">&quot;ascii&quot;</span>)<br><span class="hljs-meta">&gt;&gt;&gt; </span>urlsplit(u).netloc.rpartition(<span class="hljs-string">&quot;@&quot;</span>)[<span class="hljs-number">2</span>] <br>example.com<br><br><span class="hljs-comment"># (Note that .netloc includes user/pass and .rpartition(&quot;@&quot;) is often used to remove it.)</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="Nginx存放路径"><a href="#Nginx存放路径" class="headerlink" title="Nginx存放路径"></a>Nginx存放路径</h3><ul>
+<li>配置文件存放目录：/etc/nginx</li>
+<li>主配置文件：/etc/nginx/conf/nginx.conf</li>
+<li>管理脚本：/usr/lib64/systemd/system/nginx.service</li>
+<li>模块：/usr/lisb64/nginx/modules</li>
+<li>应用程序：/usr/sbin/nginx</li>
+<li>程序默认存放位置：/usr/share/nginx/html</li>
+<li>日志默认存放位置：/var/log/nginx</li>
+<li>配置文件目录为：/usr/local/nginx/conf/nginx.conf</li>
+</ul>
+<blockquote>
+<p>现在nginx网站配置从nginx.conf转到同目录文件夹下的default.config</p>
 </blockquote>
-<h3 id="文件包含函数"><a href="#文件包含函数" class="headerlink" title="文件包含函数"></a>文件包含函数</h3><table>
-<thead>
-<tr>
-<th>函数</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>include(0)</code></td>
-<td>获取指定文件中存在的所有文本/代码/标记，并复制到<code>include</code>语句的文件中</td>
-</tr>
-<tr>
-<td><code>include_once</code></td>
-<td>重复调用同一文件时，只调用一次，功能与<code>include</code>相同</td>
-</tr>
-<tr>
-<td><code>require</code></td>
-<td>如果执行发生错误，函数回报错并终止脚本</td>
-</tr>
-<tr>
-<td><code>require_once</code></td>
-<td>重复调用同一文件时，只调用一次，功能与<code>require</code>相同</td>
-</tr>
-<tr>
-<td><del>highlight_file</del></td>
-<td><del>对文件进行语法高亮显示。</del></td>
-</tr>
-<tr>
-<td><del>show_source</del></td>
-<td><del>对文件进行语法高亮显示。highligth_file别名</del></td>
-</tr>
-<tr>
-<td><del>readfile</del></td>
-<td><del>读取一个文件，并写入到输出缓冲，成功则返回文件中读入的字节数，失败则返回false并附带报错信息</del></td>
-</tr>
-<tr>
-<td><del>file_get_contents</del></td>
-<td><del>把整个文件读入一个字符串中</del></td>
-</tr>
-<tr>
-<td><del>fopen</del></td>
-<td><del>打开文件或者 URL</del></td>
-</tr>
-<tr>
-<td><del>file</del></td>
-<td><del>把整个文件读入一个数组中。</del></td>
-</tr>
-</tbody></table>
-<h3 id="伪协议"><a href="#伪协议" class="headerlink" title="伪协议"></a>伪协议</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs php">file:<span class="hljs-comment">//   -- 访问本地文件系统</span><br>http:<span class="hljs-comment">//   -- 访问HTTP（s）网址</span><br>ftp:<span class="hljs-comment">//    -- 访问FTP网址</span><br>php:<span class="hljs-comment">//    -- 访问各个I/O流</span><br>zlib:<span class="hljs-comment">//   -- 压缩流</span><br>data:<span class="hljs-comment">//   -- 数据（RFC 2397）</span><br>glob:<span class="hljs-comment">//   -- 查照匹配的文件路径模式</span><br>phar:<span class="hljs-comment">//   -- PHP归档</span><br>ssh2:<span class="hljs-comment">//   -- Secure Shell 2</span><br>rar:<span class="hljs-comment">//    -- RAR</span><br>ogg:<span class="hljs-comment">//    -- 音频流</span><br>expect:<span class="hljs-comment">// -- 处理交互式的流</span><br></code></pre></td></tr></table></figure>
+<h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><p>先去直接看源码。给的不全，大致也能明白一些</p>
+<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210407607.png" srcset="/img/loading.gif" lazyload alt="image-20211107210407607">三个if均是检验是否是<code>suctf.cc</code>，在最后还要必须有。</p>
+<p>对这方面知识欠缺，所以看了下大佬的wp</p>
+<p>关键点在于</p>
+<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107210857009.png" srcset="/img/loading.gif" lazyload alt="image-20211107210857009"></p>
+<p>大体意思就是对域名进行idna编码，然后再utf-8解码。百度搜索就出来这个漏洞</p>
+<ul>
+<li><p><strong>CVE-2019-9636：urlsplit 不处理 NFKC 标准化</strong></p>
+</li>
+<li><p><strong>CVE-2019-10160：urlsplit NFKD 标准化漏洞</strong></p>
+</li>
+</ul>
+<p>然后构造Payload</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">file:////suctf.cc/usr/local/nginx/conf/nginx.conf<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107211730375.png" srcset="/img/loading.gif" lazyload alt="image-20211107211730375"></p>
+<p>直接拿下flag</p>
+<h3 id="另一种解法"><a href="#另一种解法" class="headerlink" title="另一种解法"></a>另一种解法</h3><p>利用<code>ℂ</code>来代替<code>c</code>及进行绕过</p>
+<blockquote>
+<p>在unicode中还有一种字符<code>℀</code>(U+2100)，当IDNA处理此字符时，会将<code>℀</code>变成a/c，因此当你访问此url时，dns服务器会自动将url重定向到另一个网站。如果服务器引用前端url时，只对域名做了限制，那么通过这种方法，我们就可以轻松绕过服务器对域名的限制了。</p>
+</blockquote>
+<p>altman师傅的脚本:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># coding:utf-8 </span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">128</span>,<span class="hljs-number">65537</span>):    <br>    tmp=<span class="hljs-built_in">chr</span>(i)    <br>    <span class="hljs-keyword">try</span>:        <br>        res = tmp.encode(<span class="hljs-string">&#x27;idna&#x27;</span>).decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>)        <br>        <span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;-&quot;</span>) <span class="hljs-keyword">in</span> res:            <br>            <span class="hljs-keyword">continue</span>        <br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;U:&#123;&#125;    A:&#123;&#125;      ascii:&#123;&#125; &quot;</span>.<span class="hljs-built_in">format</span>(tmp, res, i))    <br>    <span class="hljs-keyword">except</span>:        <br>        <span class="hljs-keyword">pass</span><br></code></pre></td></tr></table></figure>
+
+<p>Payload:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">?url=file://suctf.c℆sr/local/nginx/conf/nginx.conf<br></code></pre></td></tr></table></figure>
 
 
 
-<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="php-filter"><a href="#php-filter" class="headerlink" title="php://filter"></a>php://filter</h3><p>​    常用于读取源码，<code>PHP://input</code>用于执行代码，是一种元包装器</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">?file=php:<span class="hljs-comment">//filter/read=convert.base64-encode/resource=../flag.php</span><br></code></pre></td></tr></table></figure>
-
-<p>读取出来的源码是Base64编码后的，需进行解码</p>
-<hr>
-<h3 id="file-协议"><a href="#file-协议" class="headerlink" title="file://协议"></a>file://协议</h3><p>​    用于访问本地文件系统，不受<code>allow_url_include</code>和<code>allow_url_fopen</code>的影响</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">?paht=file:<span class="hljs-comment">///var/www/html/flag.txt</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107151222745.png" srcset="/img/loading.gif" lazyload alt="image-20211107151222745"></p>
-<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211107151240722.png" srcset="/img/loading.gif" lazyload alt="image-20211107151240722"></p>
-<hr>
-<h3 id="php-input"><a href="#php-input" class="headerlink" title="php://input"></a>php://input</h3><p><code>php://input</code> 可以访问请求的原始数据的只读流，将POST请求作中的数据作为PHP代码执行</p>
-<p>可以通过该方法写入PHP文件，输入<code>file=php://input</code>，然后抓包修改内容</p>
-<hr>
-<h3 id="data-协议"><a href="#data-协议" class="headerlink" title="data://协议"></a>data://协议</h3><p>该协议可以直接达到执行PHP代码的效果</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">?file=data:text/plain,<span class="hljs-meta">&lt;?php</span> phpinfo();<span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
-
-<p>也可以进行<code>Base64编码</code>访问</p>
-<hr>
-<h3 id="zip"><a href="#zip" class="headerlink" title="zip://"></a>zip://</h3><p>直接访问压缩文件中的子文件，不需要指定后缀名</p>
-<h3 id="bzip2"><a href="#bzip2" class="headerlink" title="bzip2://"></a>bzip2://</h3><p>属于<code>压缩流</code>，同理，但是访问的是文件自身</p>
-<h3 id="zlib"><a href="#zlib" class="headerlink" title="zlib://"></a>zlib://</h3><p>同<code>bzip2://</code>，如果网站允许上传压缩文件，那么可以将PHP文件进行压缩后在进行上传，通过压缩流协议执行。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://bugs.python.org/issue36216">https://bugs.python.org/issue36216</a></li>
+<li>[idna与utf8编码漏洞][<a target="_blank" rel="noopener" href="https://www.cnblogs.com/cimuhuashuimu/p/11490431.html]">https://www.cnblogs.com/cimuhuashuimu/p/11490431.html]</a></li>
+<li>[url中的unicode漏洞引发的域名安全问题][<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6070#toc-7]">https://xz.aliyun.com/t/6070#toc-7]</a></li>
+</ul>
 
             </div>
             <hr>
@@ -360,18 +353,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">BUU-SUCTF—2019Pythonginx1</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2021/11/06/%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5-1/">
-                        <span class="hidden-mobile">命令注入_1</span>
+                      <a href="/2021/11/07/PHP%E5%AE%89%E5%85%A8-%E4%BC%AA%E5%8D%8F%E8%AE%AE/">
+                        <span class="hidden-mobile">PHP安全-伪协议</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
