@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>PHP-strcmp安全特性</title>
+    <link href="/2021/11/08/PHP-strcmp%E5%AE%89%E5%85%A8%E7%89%B9%E6%80%A7/"/>
+    <url>/2021/11/08/PHP-strcmp%E5%AE%89%E5%85%A8%E7%89%B9%E6%80%A7/</url>
+    
+    <content type="html"><![CDATA[<h1 id="PHP-strcmp"><a href="#PHP-strcmp" class="headerlink" title="PHP-strcmp"></a>PHP-strcmp</h1><h2 id="函数介绍"><a href="#函数介绍" class="headerlink" title="函数介绍"></a>函数介绍</h2><p><code>strcmp()</code>:比较两个字符串（区分大小写）</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>    <span class="hljs-keyword">echo</span> strcmp(<span class="hljs-string">&quot;Hello world！&quot;</span>,<span class="hljs-string">&quot;Hello world!&quot;</span>);<br>    <span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure><blockquote><p><code>strcmp()</code>函数是二进制安全的，且对大小写敏感</p></blockquote><h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3><p><code>strcmp(string1,string)</code></p><table><thead><tr><th align="center">参数</th><th align="center">描述</th></tr></thead><tbody><tr><td align="center">string1</td><td align="center">必需，规定要比较的第一个字符串。</td></tr><tr><td align="center">string2</td><td align="center">必需。规定要比较的第二个字符串。</td></tr></tbody></table><hr><p>返回值：</p><ul><li>0    - 如果两个字符串相等</li><li>&lt;0    - 如果str1 小于 str2</li><li>&gt;0  - 如果str1 大于 str2</li></ul><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211108100838062.png" alt="image-20211108100838062"></p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211108100858634.png" alt="image-20211108100858634"></p><h2 id="函数漏洞"><a href="#函数漏洞" class="headerlink" title="函数漏洞"></a>函数漏洞</h2><p>适用于PHP5.3之前的版本</p><p>在5.3版本之前，传入类型是字符串类型，当传入的类型不是字符串类型，函数就会发生错误，显示错误信息并且<code>return 0</code>，也就是说虽然报错了但是判定其相等</p><p>示例代码：</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$password</span> = <span class="hljs-string">&quot;***************&quot;</span>;<br><span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>])) &#123;<br>    <span class="hljs-keyword">if</span> (strcmp(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>], <span class="hljs-variable">$password</span>) == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;flag&#123;ABCABC&#125;&quot;</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;xxxxxxxx &quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211108101822770.png" alt="image-20211108101822770"></p><p>只要我们在$_GET[‘password’]处传入非字符串类型，传入一个数组或者Object即可；PHP为了可以上传一个数组，会把结尾带一对中括号的变量，例如xxx[]=name</p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul><li>[runoob][<a href="https://www.runoob.com/php/func-string-strcmp.html]">https://www.runoob.com/php/func-string-strcmp.html]</a></li><li><a href="https://www.cnblogs.com/xhds/p/12312055.html">https://www.cnblogs.com/xhds/p/12312055.html</a></li></ul>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>Web安全</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>BUU-SUCTF—2019Pythonginx1</title>
     <link href="/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/"/>
     <url>/2021/11/07/BUU-SUCTF%E2%80%942019Pythonginx1/</url>
