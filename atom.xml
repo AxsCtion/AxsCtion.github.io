@@ -6,7 +6,7 @@
   <link href="http://encr.cc/atom.xml" rel="self"/>
   
   <link href="http://encr.cc/"/>
-  <updated>2021-11-16T11:23:58.511Z</updated>
+  <updated>2021-11-15T12:43:39.860Z</updated>
   <id>http://encr.cc/</id>
   
   <author>
@@ -15,19 +15,6 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>demo</title>
-    <link href="http://encr.cc/2021/11/16/demo/"/>
-    <id>http://encr.cc/2021/11/16/demo/</id>
-    <published>2021-11-16T11:23:58.000Z</published>
-    <updated>2021-11-16T11:23:58.511Z</updated>
-    
-    
-    
-    
-    
-  </entry>
   
   <entry>
     <title>SSTI注入分析与防御</title>
